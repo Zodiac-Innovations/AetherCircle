@@ -61,8 +61,6 @@ if [ -z "$LIBRARY" ] || [ ! -f "$LIBRARY" ]; then
 fi
 
 mkdir -p "$JNI_LIBS"
-find "$JNI_LIBS" -maxdepth 1 -type f -name 'libswift*.so' -delete
-find "$JNI_LIBS" -maxdepth 1 -type f -name 'libFoundation*.so' -delete
 cp "$LIBRARY" "$JNI_LIBS/"
 
 RUNTIME_COUNT=0
