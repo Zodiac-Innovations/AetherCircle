@@ -33,7 +33,7 @@ cp "$SHARED_SOURCE"/*.swift "$SHARED_DESTINATION/"
 
 SWIFT_ANDROID_TRIPLE="${AETHERCIRCLE_SWIFT_ANDROID_TRIPLE:-aarch64-unknown-linux-android32}"
 
-swift build     --package-path "$PACKAGE_ROOT"     --swift-sdk "$SWIFT_ANDROID_SDK"     --triple "$SWIFT_ANDROID_TRIPLE"     --configuration debug     --static-swift-stdlib
+swift build     --package-path "$PACKAGE_ROOT"     --swift-sdk "$SWIFT_ANDROID_SDK"     --triple "$SWIFT_ANDROID_TRIPLE"     --configuration debug
 
 BIN_PATH="$(
     swift build         --package-path "$PACKAGE_ROOT"         --swift-sdk "$SWIFT_ANDROID_SDK"         --triple "$SWIFT_ANDROID_TRIPLE"         --configuration debug         --show-bin-path
