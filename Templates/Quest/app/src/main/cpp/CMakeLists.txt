@@ -28,6 +28,7 @@ target_compile_definitions(aethercircle_quest PUBLIC
 target_link_libraries(aethercircle_quest PUBLIC
     android
     android_native_app_glue
+    dl
     log
     OpenXR::openxr_loader
     vulkan
