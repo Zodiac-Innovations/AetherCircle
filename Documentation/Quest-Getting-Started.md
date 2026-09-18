@@ -14,6 +14,7 @@ Before beginning, install and configure:
 - CMake 3.31.6
 - Ninja
 - Gradle
+- Swift SDK for Android
 - Meta Quest Developer Mode and USB debugging
 
 The developer must have GitHub permission to access the private Zodiac Innovations repositories. The Quest must be connected to the development computer and authorized for USB debugging before the application can be installed.
@@ -100,9 +101,10 @@ Or open it in Visual Studio Code:
 aethercircle quest vscode
 ```
 
-The current Quest runtime and generated application entry point are C++ and can
-be edited in either IDE. The generated Quest build does not currently compile
-the application's shared Swift source.
+The Quest application is intended to compile and run the shared AetherCircle
+Swift application code through the Swift SDK for Android. Kotlin, JNI, C++, and
+OpenXR code provide platform integration; they do not replace the shared Swift
+application layer.
 
 Connect the Quest by USB, put on the headset, and approve the USB debugging request. Confirm that ADB recognizes it:
 
