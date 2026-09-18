@@ -3,6 +3,7 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <dlfcn.h>
+#include <vulkan/vulkan.h>
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
 
