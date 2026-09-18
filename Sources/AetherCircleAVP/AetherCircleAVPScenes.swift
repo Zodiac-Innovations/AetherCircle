@@ -59,6 +59,17 @@ public struct AetherCircleAVPScenes: Scene {
     /// SwiftUI scene content supplied to the visionOS application.
     public var body: some Scene {
         @Bindable var runtime = runtime
+
+        WindowGroup(
+            id: "AetherCircleLauncher"
+        ) {
+            AetherAVPLauncherView()
+        }
+        .windowStyle(.plain)
+        .defaultSize(
+            width: 1,
+            height: 1
+        )
         
         ImmersiveSpace(
             id: "AetherCircleImmersiveSpace"
