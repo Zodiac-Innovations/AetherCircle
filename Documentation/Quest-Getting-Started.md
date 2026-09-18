@@ -114,23 +114,31 @@ adb devices
 
 The headset must appear with the status `device`, not `unauthorized`.
 
-Build, install, and launch the application:
+List the connected devices and their authorization state:
 
 ```bash
-aethercircle quest
+aethercircle quest devices
 ```
 
-If more than one Android device is connected, select the Quest explicitly:
+Build the shared Swift application and native Quest package without installing:
 
 ```bash
-aethercircle quest --device <serial>
+aethercircle quest build
 ```
 
-To build and install without launching:
+Build and install without launching:
 
 ```bash
-aethercircle quest --no-launch
+aethercircle quest install [device-id]
 ```
+
+Build, install, and launch:
+
+```bash
+aethercircle quest run [device-id]
+```
+
+The device ID may be omitted when exactly one authorized device is connected.
 
 View the application log:
 
