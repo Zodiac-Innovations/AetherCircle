@@ -62,6 +62,9 @@ public struct AetherAVPLauncherView: View {
 
                 case .error, .userCancelled:
                     hasOpenedImmersiveSpace = false
+
+                @unknown default:
+                    hasOpenedImmersiveSpace = false
                 }
             }
     }
