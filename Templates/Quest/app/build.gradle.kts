@@ -1,5 +1,10 @@
 plugins { id("com.android.application") }
 
+val buildSwiftQuestApplication by tasks.registering(Exec::class) {
+    workingDir(rootProject.projectDir)
+    commandLine("bash", "build-swift.sh")
+}
+
 android {
     namespace = "{{PACKAGE_NAME}}"
     compileSdk = 36
@@ -28,6 +33,10 @@ android {
             version = "3.31.6"
         }
     }
+}
+
+tasks.named("preBuild") {
+    dependsOn(buildSwiftQuestApplication)
 }
 
 dependencies {
