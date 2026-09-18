@@ -7,6 +7,7 @@ PACKAGE_ROOT="$QUEST_ROOT/SwiftPackage"
 SHARED_SOURCE="$QUEST_ROOT/../Shared/Swift"
 SHARED_DESTINATION="$PACKAGE_ROOT/Sources/QuestApplication/Shared"
 JNI_LIBS="$QUEST_ROOT/app/src/main/jniLibs/arm64-v8a"
+SCRATCH_PATH="$PACKAGE_ROOT/.build-aethercircle-android-aarch64"
 
 if [ ! -d "$SHARED_SOURCE" ]; then
     echo "Error: Shared/Swift was not found at $SHARED_SOURCE" >&2
@@ -27,25 +28,54 @@ if [ -z "$SWIFT_ANDROID_SDK" ]; then
     exit 1
 fi
 
+SWIFT_RESOURCE_DIR="${AETHERCIRCLE_SWIFT_ANDROID_RESOURCE_DIR:-}"
+if [ -z "$SWIFT_RESOURCE_DIR" ]; then
+    SWIFT_RUNTIME_DIR="$(
+        find "$HOME/Library/org.swift.swiftpm/swift-sdks"             -type d             -path "*/swift-android/swift-resources/usr/lib/swift-aarch64/android"             -print             -quit
+    )"
+    if [ -n "$SWIFT_RUNTIME_DIR" ]; then
+        SWIFT_RESOURCE_DIR="$(dirname "$SWIFT_RUNTIME_DIR")"
+    fi
+fi
+
+if [ ! -d "$SWIFT_RESOURCE_DIR/android" ]; then
+    echo "Error: The aarch64 Swift Android runtime was not found." >&2
+    echo "Set AETHERCIRCLE_SWIFT_ANDROID_RESOURCE_DIR to its swift-aarch64 directory." >&2
+    exit 1
+fi
+
 rm -rf "$SHARED_DESTINATION"
 mkdir -p "$SHARED_DESTINATION"
 cp "$SHARED_SOURCE"/*.swift "$SHARED_DESTINATION/"
 
 SWIFT_ANDROID_TRIPLE="${AETHERCIRCLE_SWIFT_ANDROID_TRIPLE:-aarch64-unknown-linux-android32}"
 
-swift build     --package-path "$PACKAGE_ROOT"     --swift-sdk "$SWIFT_ANDROID_SDK"     --triple "$SWIFT_ANDROID_TRIPLE"     --configuration debug
+swift build     --package-path "$PACKAGE_ROOT"     --scratch-path "$SCRATCH_PATH"     --swift-sdk "$SWIFT_ANDROID_SDK"     --triple "$SWIFT_ANDROID_TRIPLE"     --configuration debug     -Xswiftc -resource-dir     -Xswiftc "$SWIFT_RESOURCE_DIR"
 
-BIN_PATH="$(
-    swift build         --package-path "$PACKAGE_ROOT"         --swift-sdk "$SWIFT_ANDROID_SDK"         --triple "$SWIFT_ANDROID_TRIPLE"         --configuration debug         --show-bin-path
+LIBRARY="$(
+    find "$SCRATCH_PATH"         -type f         -name "libAetherCircleQuestApp.so"         -print         -quit
 )"
-
-LIBRARY="$BIN_PATH/libAetherCircleQuestApp.so"
-if [ ! -f "$LIBRARY" ]; then
-    echo "Error: Swift Quest library was not produced at $LIBRARY" >&2
+if [ -z "$LIBRARY" ] || [ ! -f "$LIBRARY" ]; then
+    echo "Error: The Swift Quest application library was not produced." >&2
     exit 1
 fi
 
 mkdir -p "$JNI_LIBS"
+find "$JNI_LIBS" -maxdepth 1 -type f -name 'libswift*.so' -delete
+find "$JNI_LIBS" -maxdepth 1 -type f -name 'libFoundation*.so' -delete
 cp "$LIBRARY" "$JNI_LIBS/"
+
+RUNTIME_COUNT=0
+while IFS= read -r runtime_library; do
+    cp "$runtime_library" "$JNI_LIBS/"
+    RUNTIME_COUNT=$((RUNTIME_COUNT + 1))
+done < <(
+    find "$SWIFT_RESOURCE_DIR/android"         -maxdepth 1         -type f         \( -name 'libswift*.so' -o -name 'libFoundation*.so' \)         -print
+)
+
+if [ "$RUNTIME_COUNT" -eq 0 ]; then
+    echo "Error: No aarch64 Swift Android runtime libraries were found." >&2
+    exit 1
+fi
 
 printf '\033[0;32mBuilt the shared Swift Quest application.\033[0m\n'
