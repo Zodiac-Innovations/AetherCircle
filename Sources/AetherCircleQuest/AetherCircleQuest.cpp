@@ -2,10 +2,12 @@
 
 #include <android/log.h>
 #include <android_native_app_glue.h>
+#include <dlfcn.h>
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
 
 #include <array>
+#include <cstdint>
 #include <cstring>
 
 namespace {
@@ -15,6 +17,82 @@ constexpr const char* logTag = "AetherCircleQuest";
 void log(const char* text) {
     __android_log_print(ANDROID_LOG_INFO, logTag, "%s", text);
 }
+
+struct SwiftBridge {
+    using Start = void (*)();
+    using Stop = void (*)();
+    using ObjectCount = std::int32_t (*)();
+    using ObjectPrimitive = std::int32_t (*)(std::int32_t);
+    using ObjectValue = float (*)(std::int32_t, std::int32_t);
+    using ObjectColor = float (*)(std::int32_t, std::int32_t);
+
+    void* library = nullptr;
+    Start start = nullptr;
+    Stop stop = nullptr;
+    ObjectCount objectCount = nullptr;
+    ObjectPrimitive objectPrimitive = nullptr;
+    ObjectValue objectValue = nullptr;
+    ObjectColor objectColor = nullptr;
+
+    bool load() {
+        library = dlopen("libAetherCircleQuestApp.so", RTLD_NOW | RTLD_LOCAL);
+        if (library == nullptr) {
+            __android_log_print(
+                ANDROID_LOG_ERROR,
+                logTag,
+                "Unable to load shared Swift application: %s",
+                dlerror()
+            );
+            return false;
+        }
+
+        start = reinterpret_cast<Start>(
+            dlsym(library, "aethercircle_swift_start")
+        );
+        stop = reinterpret_cast<Stop>(
+            dlsym(library, "aethercircle_swift_stop")
+        );
+        objectCount = reinterpret_cast<ObjectCount>(
+            dlsym(library, "aethercircle_swift_object_count")
+        );
+        objectPrimitive = reinterpret_cast<ObjectPrimitive>(
+            dlsym(library, "aethercircle_swift_object_primitive")
+        );
+        objectValue = reinterpret_cast<ObjectValue>(
+            dlsym(library, "aethercircle_swift_object_value")
+        );
+        objectColor = reinterpret_cast<ObjectColor>(
+            dlsym(library, "aethercircle_swift_object_color")
+        );
+
+        if (start == nullptr || stop == nullptr || objectCount == nullptr ||
+            objectPrimitive == nullptr || objectValue == nullptr ||
+            objectColor == nullptr) {
+            log("The shared Swift application bridge is incomplete.");
+            dlclose(library);
+            library = nullptr;
+            return false;
+        }
+
+        start();
+        __android_log_print(
+            ANDROID_LOG_INFO,
+            logTag,
+            "Shared Swift application started with %d scene object(s).",
+            objectCount()
+        );
+        return true;
+    }
+
+    void unload() {
+        if (library == nullptr) {
+            return;
+        }
+        stop();
+        dlclose(library);
+        library = nullptr;
+    }
+};
 
 bool initializeLoader(android_app* app) {
     PFN_xrInitializeLoaderKHR initialize = nullptr;
@@ -85,14 +163,22 @@ namespace aethercircle {
 void run(android_app* app, const ApplicationInfo& application) {
     log("AetherCircle Quest runtime started.");
 
+    SwiftBridge swift;
+    if (!swift.load()) {
+        log("Shared Swift application startup failed.");
+        return;
+    }
+
     if (!initializeLoader(app)) {
         log("OpenXR loader initialization failed.");
+        swift.unload();
         return;
     }
 
     const XrInstance instance = createInstance(app, application);
     if (instance == XR_NULL_HANDLE) {
         log("OpenXR instance creation failed.");
+        swift.unload();
         return;
     }
 
@@ -103,6 +189,7 @@ void run(android_app* app, const ApplicationInfo& application) {
     if (XR_FAILED(xrGetSystem(instance, &systemInfo, &system))) {
         log("Quest OpenXR system was not found.");
         xrDestroyInstance(instance);
+        swift.unload();
         return;
     }
 
@@ -127,6 +214,7 @@ void run(android_app* app, const ApplicationInfo& application) {
     }
 
     xrDestroyInstance(instance);
+    swift.unload();
     log("AetherCircle Quest runtime stopped.");
 }
 
