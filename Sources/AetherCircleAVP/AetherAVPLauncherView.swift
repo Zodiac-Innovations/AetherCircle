@@ -40,9 +40,13 @@ public struct AetherAVPLauncherView: View {
 
     // MARK: Body
 
-    /// SwiftUI content displayed while launching the immersive space.
+    /// Transparent content displayed while launching the immersive space.
     public var body: some View {
         Color.clear
+            .frame(
+                width: 1,
+                height: 1
+            )
             .task {
                 guard hasOpenedImmersiveSpace == false else {
                     return
@@ -56,6 +60,7 @@ public struct AetherAVPLauncherView: View {
 
                 switch result {
                 case .opened:
+                    await Task.yield()
                     dismissWindow(
                         id: "AetherCircleLauncher"
                     )
