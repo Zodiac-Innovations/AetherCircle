@@ -45,6 +45,9 @@ public final class AetherObject: @unchecked Sendable {
     /// Indicates whether the object should be visible.
     public var isVisible: Bool
 
+    /// Optional user-interaction configuration. A nil value disables interaction.
+    public var config: AetherInteractionConfig?
+
     /// Indicates whether the object can receive user focus.
     public var canFocus: Bool
 
@@ -89,6 +92,7 @@ public final class AetherObject: @unchecked Sendable {
     ///   - size: Initial size in meters.
     ///   - material: Initial display material.
     ///   - isVisible: Initial visibility state.
+    ///   - config: Optional user-interaction configuration.
     ///   - canFocus: Whether the object can receive user focus.
     ///   - isFocused: Initial focus state.
     ///   - canSelect: Whether the object can be selected.
@@ -110,6 +114,7 @@ public final class AetherObject: @unchecked Sendable {
         size: AetherSize3D = .one,
         material: Int = 0,
         isVisible: Bool = true,
+        config: AetherInteractionConfig? = nil,
         canFocus: Bool = false,
         isFocused: Bool = false,
         canSelect: Bool = false,
@@ -130,6 +135,7 @@ public final class AetherObject: @unchecked Sendable {
         self.size = size
         self.material = material
         self.isVisible = isVisible
+        self.config = config
         self.canFocus = canFocus
         self.isFocused = isFocused
         self.canSelect = canSelect

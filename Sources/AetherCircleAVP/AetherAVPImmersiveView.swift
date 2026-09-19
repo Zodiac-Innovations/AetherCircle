@@ -69,6 +69,15 @@ public struct AetherAVPImmersiveView: View {
         } update: { _ in
             _ = runtime.revision
         }
+        .gesture(
+            TapGesture()
+                .targetedToAnyEntity()
+                .onEnded { value in
+                    runtime.activate(
+                        value.entity
+                    )
+                }
+        )
         .onDisappear {
             application.stop()
         }

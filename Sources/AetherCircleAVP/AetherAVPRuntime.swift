@@ -185,6 +185,31 @@ public final class AetherAVPRuntime {
         revision &+= 1
     }
 
+    // MARK: Interaction
+
+    /// Activates the AetherCircle object represented by a RealityKit entity.
+    ///
+    /// - Parameter entity: Entity targeted by the user's tap gesture.
+    public func activate(
+        _ entity: Entity
+    ) {
+        var candidate: Entity? = entity
+
+        while let current = candidate {
+            if let objectID = entityByObjectID.first(
+                where: { $0.value === current }
+            )?.key,
+               let object = currentScene?.objects.first(
+                where: { $0.id == objectID }
+               ) {
+                object.config?.activateAction?()
+                return
+            }
+
+            candidate = current.parent
+        }
+    }
+
     // MARK: Environment
 
     /// Applies an AetherCircle environment mode to the immersive space.

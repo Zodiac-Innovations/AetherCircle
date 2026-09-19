@@ -17,4 +17,10 @@ import Foundation
 public typealias AetherFloat = Float
 
 /// Closure that accepts no parameters and returns no value.
-public typealias AetherBlock = () -> Void
+public typealias AetherBlockSimple = () -> Void
+
+/// Closure that accepts a Boolean flag and returns no value.
+public typealias AetherBlockFlag = (Bool) -> Void
+
+/// Backward-compatible name for a closure that accepts no parameters.
+public typealias AetherBlock = AetherBlockSimple

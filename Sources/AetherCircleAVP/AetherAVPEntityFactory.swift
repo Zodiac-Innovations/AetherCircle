@@ -92,6 +92,49 @@ enum AetherAVPEntityFactory {
                 makeMaterial(for: object, assetEngine: assetEngine),
             ]
         }
+
+        updateInteraction(
+            of: entity,
+            from: object
+        )
+    }
+
+    // MARK: Interaction
+
+    /// Applies native AVP input and hover components for an object's configuration.
+    private static func updateInteraction(
+        of entity: Entity,
+        from object: AetherObject
+    ) {
+        guard let config = object.config else {
+            entity.components.remove(HoverEffectComponent.self)
+            entity.components.remove(InputTargetComponent.self)
+            entity.components.remove(CollisionComponent.self)
+            return
+        }
+
+        let acceptsInput =
+            config.canTarget ||
+            config.typeActivate != .none ||
+            config.activateAction != nil ||
+            config.typeTouch != .none ||
+            config.touchAction != nil
+
+        guard acceptsInput else {
+            entity.components.remove(HoverEffectComponent.self)
+            entity.components.remove(InputTargetComponent.self)
+            entity.components.remove(CollisionComponent.self)
+            return
+        }
+
+        entity.components.set(InputTargetComponent())
+        entity.generateCollisionShapes(recursive: false)
+
+        if config.canTarget {
+            entity.components.set(HoverEffectComponent())
+        } else {
+            entity.components.remove(HoverEffectComponent.self)
+        }
     }
     
     // MARK: Mesh

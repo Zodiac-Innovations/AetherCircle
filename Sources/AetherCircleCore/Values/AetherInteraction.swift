@@ -56,3 +56,58 @@ public struct AetherInteraction: Sendable, Codable, Hashable {
         self.type = type
     }
 }
+
+// MARK: Interaction Configuration
+
+/// Visual response applied while an object interaction is active.
+public enum AetherInteractionType: Sendable, Equatable {
+
+    /// No visual response.
+    case none
+
+    /// Makes the object glow.
+    case glow
+
+    /// Enlarges the object by the specified percentage.
+    case enlarge(Int)
+}
+
+/// Configures the ways a user can interact with an AetherCircle object.
+public struct AetherInteractionConfig {
+
+    // MARK: Properties
+
+    /// Indicates whether the object can be targeted.
+    ///
+    /// Each platform supplies its native targeting feedback.
+    public var canTarget: Bool
+
+    /// Visual response when the object is activated.
+    public var typeActivate: AetherInteractionType
+
+    /// Action invoked when the object is activated.
+    public var activateAction: AetherBlockSimple?
+
+    /// Visual response while the object is being touched.
+    public var typeTouch: AetherInteractionType
+
+    /// Action invoked with `true` when touch begins and `false` when it ends.
+    public var touchAction: AetherBlockFlag?
+
+    // MARK: Initialization
+
+    /// Creates an interaction configuration.
+    public init(
+        canTarget: Bool = false,
+        typeActivate: AetherInteractionType = .none,
+        activateAction: AetherBlockSimple? = nil,
+        typeTouch: AetherInteractionType = .none,
+        touchAction: AetherBlockFlag? = nil
+    ) {
+        self.canTarget = canTarget
+        self.typeActivate = typeActivate
+        self.activateAction = activateAction
+        self.typeTouch = typeTouch
+        self.touchAction = touchAction
+    }
+}

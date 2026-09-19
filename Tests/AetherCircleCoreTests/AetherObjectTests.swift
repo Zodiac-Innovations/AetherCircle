@@ -126,11 +126,43 @@ struct AetherObjectTests {
         #expect(object.rotation == .zero)
         #expect(object.size == .one)
         #expect(object.isVisible)
+        #expect(object.config == nil)
         #expect(object.velocity == nil)
         #expect(object.acceleration == nil)
         #expect(object.rotationRate == nil)
     }
     
+    /// Verifies that an object stores its interaction configuration and invokes its actions.
+    @Test
+    func objectInteractionConfiguration() {
+        var activationCount = 0
+        var touchState: Bool?
+
+        let config = AetherInteractionConfig(
+            canTarget: true,
+            typeActivate: .enlarge(10),
+            activateAction: { activationCount += 1 },
+            typeTouch: .glow,
+            touchAction: { touchState = $0 }
+        )
+
+        let object = AetherObject(
+            name: "Interactive Object",
+            primitive: .cube,
+            config: config
+        )
+
+        #expect(object.config?.canTarget == true)
+        #expect(object.config?.typeActivate == .enlarge(10))
+        #expect(object.config?.typeTouch == .glow)
+
+        object.config?.activateAction?()
+        object.config?.touchAction?(false)
+
+        #expect(activationCount == 1)
+        #expect(touchState == false)
+    }
+
     // MARK: Identity Tests
     
     /// Verifies that separately created AetherObjects receive different identifiers.
