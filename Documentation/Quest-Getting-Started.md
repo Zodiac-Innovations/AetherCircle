@@ -120,10 +120,10 @@ List the connected devices and their authorization state:
 aethercircle quest devices
 ```
 
-Build the shared Swift application and native Quest package without installing:
+Compile the shared Swift application and native Quest package without installing:
 
 ```bash
-aethercircle quest build
+aethercircle quest compile
 ```
 
 Build and install without launching:
