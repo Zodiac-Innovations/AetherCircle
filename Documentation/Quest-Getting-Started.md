@@ -66,7 +66,7 @@ cd HelloAetherCircle
 Generate the Android Studio and OpenXR project:
 
 ```bash
-aethercircle quest create
+aethercircle quest build
 ```
 
 A new project includes the default AetherCircle icon at:
@@ -155,10 +155,10 @@ brew update
 brew upgrade --fetch-HEAD aethercircle
 ```
 
-The Quest runtime and templates are downloaded from the AetherCircle repository by `aethercircle quest create`. To regenerate an existing Quest project from the latest repository version, first preserve any project-specific changes and then run:
+The Quest runtime and templates are downloaded from the AetherCircle repository by `aethercircle quest build`. To regenerate an existing Quest project from the latest repository version, first preserve any project-specific changes and then run:
 
 ```bash
-aethercircle quest create -d
+aethercircle quest build -d
 ```
 
 The `-d` option deletes and recreates the existing `Quest` directory.

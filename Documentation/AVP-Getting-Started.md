@@ -61,7 +61,7 @@ cd HelloAetherCircle
 Generate the Xcode project:
 
 ```bash
-aethercircle avp create
+aethercircle avp build
 ```
 
 A new project includes the default AetherCircle icon at:
