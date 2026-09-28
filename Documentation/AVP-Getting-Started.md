@@ -10,14 +10,12 @@ Before beginning, install:
 - Xcode with the visionOS simulator runtime
 - Xcode Command Line Tools
 
-The developer must have GitHub permission to access the private Zodiac Innovations repositories.
-
 ## 1. Install AetherCircle
 
 Add the Zodiac Innovations Homebrew tap:
 
 ```bash
-brew tap zodiac-innovations/tap ssh://git@ssh.github.com:443/Zodiac-Innovations/homebrew-tap.git
+brew tap zodiac-innovations/tap
 ```
 
 Install the current AetherCircle CLI:
@@ -52,7 +50,7 @@ cd ~/Desktop
 Create and enter the project:
 
 ```bash
-aethercircle create HelloAetherCircle
+aethercircle init HelloAetherCircle
 cd HelloAetherCircle
 ```
 
@@ -61,20 +59,10 @@ cd HelloAetherCircle
 Generate the Xcode project:
 
 ```bash
-aethercircle avp build
+aethercircle avp create
 ```
 
-A new project includes the default AetherCircle icon at:
-
-```text
-Shared/Files/appicon-1024.png
-```
-
-Replace that file with a custom 1024×1024 PNG when desired, then install it in the AVP project:
-
-```bash
-aethercircle avp appicon
-```
+The default icon is installed automatically from `Shared/Icons`. Replace the appropriate icon files there before regenerating with `aethercircle avp create -d` if you want a custom icon.
 
 Check the generated project and development environment:
 
@@ -104,7 +92,7 @@ To update the Homebrew-installed command-line tool:
 
 ```bash
 brew update
-brew upgrade --fetch-HEAD aethercircle
+brew upgrade --fetch-HEAD zodiac-innovations/tap/aethercircle
 ```
 
-To update the AetherCircle Swift package used by an existing application, open the project in Xcode and select **File > Packages > Update to Latest Package Versions**.
+The generated AVP project uses the repository and branch in `AetherCircle.info`. To update its Swift package, open the project in Xcode and select **File > Packages > Update to Latest Package Versions**.

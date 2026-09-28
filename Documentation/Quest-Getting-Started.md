@@ -17,14 +17,14 @@ Before beginning, install and configure:
 - Swift SDK for Android
 - Meta Quest Developer Mode and USB debugging
 
-The developer must have GitHub permission to access the private Zodiac Innovations repositories. The Quest must be connected to the development computer and authorized for USB debugging before the application can be installed.
+The Quest must be connected to the development computer and authorized for USB debugging before the application can be installed.
 
 ## 1. Install AetherCircle
 
 Add the Zodiac Innovations Homebrew tap:
 
 ```bash
-brew tap zodiac-innovations/tap ssh://git@ssh.github.com:443/Zodiac-Innovations/homebrew-tap.git
+brew tap zodiac-innovations/tap
 ```
 
 Install the current AetherCircle CLI:
@@ -57,7 +57,7 @@ cd ~/Desktop
 Create and enter the project:
 
 ```bash
-aethercircle create HelloAetherCircle
+aethercircle init HelloAetherCircle
 cd HelloAetherCircle
 ```
 
@@ -66,20 +66,10 @@ cd HelloAetherCircle
 Generate the Android Studio and OpenXR project:
 
 ```bash
-aethercircle quest build
+aethercircle quest create
 ```
 
-A new project includes the default AetherCircle icon at:
-
-```text
-Shared/Files/appicon-1024.png
-```
-
-Replace that file with a custom 1024×1024 PNG when desired, then install it in the Quest project:
-
-```bash
-aethercircle quest appicon
-```
+The default icon is installed automatically from `Shared/Icons`. Replace the appropriate icon files there before regenerating with `aethercircle quest create -d` if you want a custom icon.
 
 Check the project and development environment:
 
@@ -152,13 +142,13 @@ To update the Homebrew-installed command-line tool:
 
 ```bash
 brew update
-brew upgrade --fetch-HEAD aethercircle
+brew upgrade --fetch-HEAD zodiac-innovations/tap/aethercircle
 ```
 
-The Quest runtime and templates are downloaded from the AetherCircle repository by `aethercircle quest build`. To regenerate an existing Quest project from the latest repository version, first preserve any project-specific changes and then run:
+The Quest runtime and templates are downloaded from the repository and branch in `AetherCircle.info` by `aethercircle quest create`. To regenerate an existing Quest project from the latest repository version, first preserve any project-specific changes and then run:
 
 ```bash
-aethercircle quest build -d
+aethercircle quest create -d
 ```
 
 The `-d` option deletes and recreates the existing `Quest` directory.
