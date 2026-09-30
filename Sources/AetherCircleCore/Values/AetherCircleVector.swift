@@ -209,6 +209,22 @@ public protocol AetherCircleVectorDrawingProtocol: AnyObject {
     /// Returns true when the drawer recognizes and handles the command.
     @discardableResult
     func drawSpecialData(type: String, data: String) -> Bool
+    /// Draws bitmap content using a material as its tint/mask paint.
+    /// Returns false when this backend does not implement painted bitmap drawing.
+    @discardableResult
+    func drawBitmap(
+        data: Data,
+        sourceRect: AetherCircleRect?,
+        destinationRect: AetherCircleRect,
+        opacity: AetherCircleFloat,
+        material: AetherCircleMaterial
+    ) -> Bool
+
+    /// Offers a specialized command together with its paint.
+    /// Returns false when the backend does not handle this painted command.
+    @discardableResult
+    func drawSpecialData(type: String, data: String, material: AetherCircleMaterial) -> Bool
+
 }
 
 public extension AetherCircleVectorDrawingProtocol {
@@ -220,3 +236,137 @@ public extension AetherCircleVectorDrawingProtocol {
 
 /// Reusable drawing code that can target a native drawer or a recorder.
 public typealias AetherCircleVectorDrawingClosure = (_ drawer: any AetherCircleVectorDrawingProtocol) -> Void
+
+// MARK: - Direct Color and Material Drawing
+
+public extension AetherCircleVectorDrawingProtocol {
+
+    func drawLine(from start: AetherCirclePoint, to end: AetherCirclePoint, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1) {
+        drawLine(from: start, to: end, stroke: AetherCircleVectorStroke(material: material, thickness: thickness))
+    }
+
+    func drawLine(from start: AetherCirclePoint, to end: AetherCirclePoint, color: AetherCircleColor, thickness: AetherCircleFloat = 1) {
+        drawLine(from: start, to: end, material: .color(color), thickness: thickness)
+    }
+
+    /// Draws this shape with independent outline and interior materials.
+    /// Nil omits the corresponding outline or fill.
+    func drawRectangle(in rect: AetherCircleRect, strokeMaterial: AetherCircleMaterial?, fillMaterial: AetherCircleMaterial?, thickness: AetherCircleFloat = 1) {
+        drawRectangle(in: rect, stroke: strokeMaterial.map { AetherCircleVectorStroke(material: $0, thickness: thickness) }, fill: fillMaterial.map { AetherCircleVectorFill(material: $0) })
+    }
+
+    func drawRectangle(in rect: AetherCircleRect, strokeColor: AetherCircleColor?, fillColor: AetherCircleColor?, thickness: AetherCircleFloat = 1) {
+        drawRectangle(in: rect, strokeMaterial: strokeColor.map { AetherCircleMaterial.color($0) }, fillMaterial: fillColor.map { AetherCircleMaterial.color($0) }, thickness: thickness)
+    }
+
+    /// Filled shapes use the material for their interior; unfilled shapes use it for their outline.
+    func drawRectangle(in rect: AetherCircleRect, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawRectangle(in: rect, strokeMaterial: filled ? nil : material, fillMaterial: filled ? material : nil, thickness: thickness)
+    }
+
+    func drawRectangle(in rect: AetherCircleRect, color: AetherCircleColor, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawRectangle(in: rect, material: .color(color), thickness: thickness, filled: filled)
+    }
+
+    /// Draws this shape with independent outline and interior materials.
+    /// Nil omits the corresponding outline or fill.
+    func drawRoundedRectangle(in rect: AetherCircleRect, cornerRadius: AetherCircleFloat, strokeMaterial: AetherCircleMaterial?, fillMaterial: AetherCircleMaterial?, thickness: AetherCircleFloat = 1) {
+        drawRoundedRectangle(in: rect, cornerRadius: cornerRadius, stroke: strokeMaterial.map { AetherCircleVectorStroke(material: $0, thickness: thickness) }, fill: fillMaterial.map { AetherCircleVectorFill(material: $0) })
+    }
+
+    func drawRoundedRectangle(in rect: AetherCircleRect, cornerRadius: AetherCircleFloat, strokeColor: AetherCircleColor?, fillColor: AetherCircleColor?, thickness: AetherCircleFloat = 1) {
+        drawRoundedRectangle(in: rect, cornerRadius: cornerRadius, strokeMaterial: strokeColor.map { AetherCircleMaterial.color($0) }, fillMaterial: fillColor.map { AetherCircleMaterial.color($0) }, thickness: thickness)
+    }
+
+    /// Filled shapes use the material for their interior; unfilled shapes use it for their outline.
+    func drawRoundedRectangle(in rect: AetherCircleRect, cornerRadius: AetherCircleFloat, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawRoundedRectangle(in: rect, cornerRadius: cornerRadius, strokeMaterial: filled ? nil : material, fillMaterial: filled ? material : nil, thickness: thickness)
+    }
+
+    func drawRoundedRectangle(in rect: AetherCircleRect, cornerRadius: AetherCircleFloat, color: AetherCircleColor, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawRoundedRectangle(in: rect, cornerRadius: cornerRadius, material: .color(color), thickness: thickness, filled: filled)
+    }
+
+    /// Draws this shape with independent outline and interior materials.
+    /// Nil omits the corresponding outline or fill.
+    func drawOval(in rect: AetherCircleRect, strokeMaterial: AetherCircleMaterial?, fillMaterial: AetherCircleMaterial?, thickness: AetherCircleFloat = 1) {
+        drawOval(in: rect, stroke: strokeMaterial.map { AetherCircleVectorStroke(material: $0, thickness: thickness) }, fill: fillMaterial.map { AetherCircleVectorFill(material: $0) })
+    }
+
+    func drawOval(in rect: AetherCircleRect, strokeColor: AetherCircleColor?, fillColor: AetherCircleColor?, thickness: AetherCircleFloat = 1) {
+        drawOval(in: rect, strokeMaterial: strokeColor.map { AetherCircleMaterial.color($0) }, fillMaterial: fillColor.map { AetherCircleMaterial.color($0) }, thickness: thickness)
+    }
+
+    /// Filled shapes use the material for their interior; unfilled shapes use it for their outline.
+    func drawOval(in rect: AetherCircleRect, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawOval(in: rect, strokeMaterial: filled ? nil : material, fillMaterial: filled ? material : nil, thickness: thickness)
+    }
+
+    func drawOval(in rect: AetherCircleRect, color: AetherCircleColor, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawOval(in: rect, material: .color(color), thickness: thickness, filled: filled)
+    }
+
+    func drawArc(center: AetherCirclePoint, radius: AetherCircleFloat, startAngle: AetherCircleFloat, endAngle: AetherCircleFloat, direction: AetherCircleVectorArcDirection, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1) {
+        drawArc(center: center, radius: radius, startAngle: startAngle, endAngle: endAngle, direction: direction, stroke: AetherCircleVectorStroke(material: material, thickness: thickness))
+    }
+
+    func drawArc(center: AetherCirclePoint, radius: AetherCircleFloat, startAngle: AetherCircleFloat, endAngle: AetherCircleFloat, direction: AetherCircleVectorArcDirection, color: AetherCircleColor, thickness: AetherCircleFloat = 1) {
+        drawArc(center: center, radius: radius, startAngle: startAngle, endAngle: endAngle, direction: direction, material: .color(color), thickness: thickness)
+    }
+
+    /// Draws this shape with independent outline and interior materials.
+    /// Nil omits the corresponding outline or fill.
+    func drawPolygon(points: [AetherCirclePoint], strokeMaterial: AetherCircleMaterial?, fillMaterial: AetherCircleMaterial?, thickness: AetherCircleFloat = 1) {
+        drawPolygon(points: points, stroke: strokeMaterial.map { AetherCircleVectorStroke(material: $0, thickness: thickness) }, fill: fillMaterial.map { AetherCircleVectorFill(material: $0) })
+    }
+
+    func drawPolygon(points: [AetherCirclePoint], strokeColor: AetherCircleColor?, fillColor: AetherCircleColor?, thickness: AetherCircleFloat = 1) {
+        drawPolygon(points: points, strokeMaterial: strokeColor.map { AetherCircleMaterial.color($0) }, fillMaterial: fillColor.map { AetherCircleMaterial.color($0) }, thickness: thickness)
+    }
+
+    /// Filled shapes use the material for their interior; unfilled shapes use it for their outline.
+    func drawPolygon(points: [AetherCirclePoint], material: AetherCircleMaterial, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawPolygon(points: points, strokeMaterial: filled ? nil : material, fillMaterial: filled ? material : nil, thickness: thickness)
+    }
+
+    func drawPolygon(points: [AetherCirclePoint], color: AetherCircleColor, thickness: AetherCircleFloat = 1, filled: Bool = true) {
+        drawPolygon(points: points, material: .color(color), thickness: thickness, filled: filled)
+    }
+
+    func drawQuadraticBezier(from start: AetherCirclePoint, control: AetherCirclePoint, to end: AetherCirclePoint, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1) {
+        drawQuadraticBezier(from: start, control: control, to: end, stroke: AetherCircleVectorStroke(material: material, thickness: thickness))
+    }
+
+    func drawQuadraticBezier(from start: AetherCirclePoint, control: AetherCirclePoint, to end: AetherCirclePoint, color: AetherCircleColor, thickness: AetherCircleFloat = 1) {
+        drawQuadraticBezier(from: start, control: control, to: end, material: .color(color), thickness: thickness)
+    }
+
+    func drawCubicBezier(from start: AetherCirclePoint, control1: AetherCirclePoint, control2: AetherCirclePoint, to end: AetherCirclePoint, material: AetherCircleMaterial, thickness: AetherCircleFloat = 1) {
+        drawCubicBezier(from: start, control1: control1, control2: control2, to: end, stroke: AetherCircleVectorStroke(material: material, thickness: thickness))
+    }
+
+    func drawCubicBezier(from start: AetherCirclePoint, control1: AetherCirclePoint, control2: AetherCirclePoint, to end: AetherCirclePoint, color: AetherCircleColor, thickness: AetherCircleFloat = 1) {
+        drawCubicBezier(from: start, control1: control1, control2: control2, to: end, material: .color(color), thickness: thickness)
+    }
+
+    /// Default implementations explicitly report unsupported painted bitmap/special operations.
+    @discardableResult
+    func drawBitmap(data: Data, sourceRect: AetherCircleRect?, destinationRect: AetherCircleRect, opacity: AetherCircleFloat, material: AetherCircleMaterial) -> Bool {
+        false
+    }
+
+    @discardableResult
+    func drawBitmap(data: Data, sourceRect: AetherCircleRect?, destinationRect: AetherCircleRect, opacity: AetherCircleFloat, color: AetherCircleColor) -> Bool {
+        drawBitmap(data: data, sourceRect: sourceRect, destinationRect: destinationRect, opacity: opacity, material: .color(color))
+    }
+
+    @discardableResult
+    func drawSpecialData(type: String, data: String, material: AetherCircleMaterial) -> Bool {
+        false
+    }
+
+    @discardableResult
+    func drawSpecialData(type: String, data: String, color: AetherCircleColor) -> Bool {
+        drawSpecialData(type: type, data: data, material: .color(color))
+    }
+}
